@@ -78,6 +78,15 @@
                 Hmm... ce n'est pas le bon code 😏
             </p>
 
+            <!-- RETOUR -->
+            <button
+                id="pinBack"
+                class="secondary-btn back-btn"
+                data-back="1"
+            >
+                ← Retour
+            </button>
+
         </div>
 
     </section>
@@ -124,7 +133,10 @@
 
             <!-- Kept for JavaScript compatibility.
                  The transition happens automatically. -->
-            <button id="birthdayContinue" class="main-btn hidden-btn">
+            <button
+                id="birthdayContinue"
+                class="main-btn hidden-btn"
+            >
                 Continuer
             </button>
 
@@ -142,10 +154,8 @@
 
             <div class="photo-stage" id="photoStage">
 
-                <!--
-                    This image is used as the source
-                    for the individual photo pieces.
-                -->
+                <!-- Source image used by JavaScript
+                     for the individual photo pieces -->
                 <img
                     id="montagePhoto"
                     src="images/p01.png"
@@ -158,8 +168,20 @@
                 Quelques souvenirs... ❤️
             </p>
 
-            <button id="photoContinue" class="main-btn">
+            <button
+                id="photoContinue"
+                class="main-btn"
+            >
                 Continuer
+            </button>
+
+            <!-- RETOUR -->
+            <button
+                id="photoBack"
+                class="secondary-btn back-btn"
+                data-back="3"
+            >
+                ← Retour
             </button>
 
         </div>
@@ -196,8 +218,20 @@
                 qui mérite de beaux moments.
             </p>
 
-            <button id="herContinue" class="main-btn">
+            <button
+                id="herContinue"
+                class="main-btn"
+            >
                 Continuer
+            </button>
+
+            <!-- RETOUR -->
+            <button
+                id="thoughtBack"
+                class="secondary-btn back-btn"
+                data-back="4"
+            >
+                ← Retour
             </button>
 
         </div>
@@ -226,15 +260,30 @@
 
             <div class="question-buttons">
 
-                <button id="yesBtn" class="main-btn">
+                <button
+                    id="yesBtn"
+                    class="main-btn"
+                >
                     Oui 😊
                 </button>
 
-                <button id="noBtn" class="secondary-btn">
+                <button
+                    id="noBtn"
+                    class="secondary-btn"
+                >
                     Non
                 </button>
 
             </div>
+
+            <!-- RETOUR -->
+            <button
+                id="questionBack"
+                class="secondary-btn back-btn"
+                data-back="5"
+            >
+                ← Retour
+            </button>
 
         </div>
 
@@ -342,11 +391,21 @@
             </div>
 
 
-            <!--
-                Messages are created by JavaScript
-                and displayed directly on the selected gift.
-            -->
-            <div id="giftMessage" class="gift-message"></div>
+            <!-- Messages are created by JavaScript
+                 and displayed directly on the selected gift -->
+            <div
+                id="giftMessage"
+                class="gift-message"
+            ></div>
+
+            <!-- RETOUR -->
+            <button
+                id="giftsBack"
+                class="secondary-btn back-btn"
+                data-back="6"
+            >
+                ← Retour
+            </button>
 
         </div>
 
@@ -380,6 +439,15 @@
                     class="main-btn"
                 >
                     Continuer
+                </button>
+
+                <!-- RETOUR -->
+                <button
+                    id="letterBack"
+                    class="secondary-btn back-btn"
+                    data-back="7"
+                >
+                    ← Retour
                 </button>
 
             </div>
@@ -418,6 +486,164 @@
             <div class="final-decoration">
                 ✦ &nbsp; ♡ &nbsp; ✦
             </div>
+
+            <!-- MESSAGE BUTTON -->
+            <button
+                id="messageBtn"
+                class="main-btn"
+            >
+                💌 Laisser un petit message
+            </button>
+
+            <!-- RETOUR -->
+            <button
+                id="finalBack"
+                class="secondary-btn back-btn"
+                data-back="8"
+            >
+                ← Retour
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         SCREEN 10 — MESSAGE
+    ========================== -->
+    <section class="screen" id="screen10">
+
+        <div class="message-container">
+
+            <div class="message-icon">
+                💌
+            </div>
+
+            <h2>
+                Un petit mot pour finir...
+            </h2>
+
+            <p>
+                Si tu veux, tu peux laisser un petit message.
+            </p>
+
+            <form
+                id="messageForm"
+                action="https://formspree.io/f/xzezpdza"
+                method="POST"
+            >
+
+                <div class="form-group">
+
+                    <label for="nameInput">
+                        Ton prénom
+                    </label>
+
+                    <input
+                        type="text"
+                        id="nameInput"
+                        name="name"
+                        placeholder="Écris ton prénom"
+                        autocomplete="name"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="messageInput">
+                        Ton message
+                    </label>
+
+                    <textarea
+                        id="messageInput"
+                        name="message"
+                        rows="6"
+                        placeholder="Écris ton message ici..."
+                        required
+                    ></textarea>
+
+                </div>
+
+
+                <input
+                    type="hidden"
+                    name="_subject"
+                    value="Nouveau message depuis le site de Dorcas"
+                >
+
+
+                <div class="message-buttons">
+
+                    <button
+                        type="submit"
+                        id="sendMessageBtn"
+                        class="main-btn"
+                    >
+                        Envoyer 💌
+                    </button>
+
+                    <button
+                        type="button"
+                        id="messageBack"
+                        class="secondary-btn back-btn"
+                        data-back="9"
+                    >
+                        ← Retour
+                    </button>
+
+                </div>
+
+                <p
+                    id="formStatus"
+                    class="form-status"
+                    aria-live="polite"
+                ></p>
+
+            </form>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         SCREEN 11 — FINAL CONFIRMATION
+    ========================== -->
+    <section class="screen" id="screen11">
+
+        <div class="final-container">
+
+            <div class="final-heart">
+                💖
+            </div>
+
+            <h1>
+                Merci pour ton message, Dorcas.
+            </h1>
+
+            <p>
+                Ton petit mot a bien été envoyé.
+            </p>
+
+            <p class="final-small">
+                J'espère que cette petite surprise
+                t'aura fait sourire. ✨
+            </p>
+
+            <div class="final-decoration">
+                ✦ &nbsp; ♡ &nbsp; ✦
+            </div>
+
+            <button
+                id="finishBtn"
+                class="main-btn"
+            >
+                Terminer
+            </button>
 
         </div>
 

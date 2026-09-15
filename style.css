@@ -105,6 +105,7 @@ body {
 
     width: 100%;
     height: 100vh;
+    height: 100dvh;
 
     display: flex;
     align-items: center;
@@ -117,7 +118,13 @@ body {
 
     pointer-events: none;
 
-    overflow: hidden;
+    /*
+       Important:
+       The screen can scroll when its content is taller
+       than the phone/computer viewport.
+    */
+    overflow-x: hidden;
+    overflow-y: auto;
 
     z-index: 1;
 
@@ -229,6 +236,20 @@ p {
 
     background: rgba(255, 255, 255, 0.16);
 }
+
+
+/* =========================================================
+   RETOUR BUTTON
+========================================================= */
+
+.back-btn {
+    margin-top: 16px;
+}
+
+
+/* =========================================================
+   HIDDEN BUTTON
+========================================================= */
 
 .hidden-btn {
     opacity: 0;
@@ -539,14 +560,39 @@ p {
 
     align-items: center;
 
+    justify-content: center;
+
     text-align: center;
+
+    /*
+       Prevents the photo area from becoming too tall.
+    */
+    max-width: 100%;
 }
+
+
+/*
+   IMPORTANT:
+   JavaScript will change the aspect-ratio according
+   to the REAL dimensions of each photo.
+
+   Therefore:
+   - portrait photos stay portrait
+   - landscape photos stay landscape
+   - square photos stay square
+   - no stretching
+   - no forced 4:3 cropping
+*/
 
 .photo-stage {
     position: relative;
 
-    width: min(760px, 92vw);
+    width: min(760px, 90vw);
 
+    /*
+       JavaScript sets the real ratio.
+       This is only the initial fallback.
+    */
     aspect-ratio: 4 / 3;
 
     overflow: hidden;
@@ -558,12 +604,15 @@ p {
     box-shadow:
         0 25px 70px rgba(0, 0, 0, 0.5),
         0 0 30px rgba(210, 60, 110, 0.12);
+
+    flex-shrink: 0;
 }
 
+
 /*
-    The original image is hidden.
-    JavaScript uses it only as the source
-    for the individual pieces.
+   The original image is hidden.
+   JavaScript uses it only as the source
+   for the individual pieces.
 */
 
 #montagePhoto {
@@ -571,7 +620,9 @@ p {
 }
 
 
-/* PHOTO PIECES */
+/* =========================================================
+   PHOTO PIECES
+========================================================= */
 
 .photo-piece {
     position: absolute;
@@ -629,9 +680,11 @@ p {
 
 
 /*
-    Image placed inside each piece.
-    This makes every tile show exactly
-    the correct part of the original photo.
+   Image inside each piece.
+
+   Because JavaScript now gives the photo-stage
+   the same aspect ratio as the original photo,
+   the pieces keep the original proportions.
 */
 
 .photo-piece img {
@@ -655,9 +708,17 @@ p {
     user-select: none;
     pointer-events: none;
 
+    /*
+       The dimensions are calculated to match
+       the original image proportions.
+    */
     object-fit: fill;
 }
 
+
+/* =========================================================
+   PHOTO CAPTION
+========================================================= */
 
 .photo-caption {
     margin-top: 22px;
@@ -670,7 +731,8 @@ p {
 
     opacity: 0;
 
-    animation: captionAppear 0.8s ease 0.8s forwards;
+    animation:
+        captionAppear 0.8s ease 0.8s forwards;
 }
 
 @keyframes captionAppear {
@@ -685,13 +747,31 @@ p {
     }
 }
 
+
+/*
+   The Continue button is hidden until
+   all five photos have finished.
+*/
+
 #photoContinue {
+    display: none;
+
     margin-top: 20px;
 
     opacity: 0;
 
+    transform: translateY(12px);
+}
+
+#photoContinue.visible {
+    display: inline-flex;
+
+    opacity: 1;
+
+    transform: translateY(0);
+
     animation:
-        buttonAppear 0.8s ease 1.5s forwards;
+        buttonAppear 0.8s ease forwards;
 }
 
 @keyframes buttonAppear {
@@ -726,7 +806,8 @@ p {
 
     color: #ffb2c9;
 
-    animation: softPulse 2.5s ease-in-out infinite;
+    animation:
+        softPulse 2.5s ease-in-out infinite;
 }
 
 .thought-container h2 {
@@ -763,7 +844,8 @@ p {
 
     margin-bottom: 20px;
 
-    animation: softPulse 2s ease-in-out infinite;
+    animation:
+        softPulse 2s ease-in-out infinite;
 }
 
 .question-container h2 {
@@ -801,7 +883,7 @@ p {
 .gift-container {
     width: min(850px, 94vw);
 
-    max-height: 100vh;
+    max-height: calc(100vh - 20px);
 
     overflow-y: auto;
 
@@ -821,7 +903,8 @@ p {
 
     margin-bottom: 10px;
 
-    animation: softPulse 2.5s ease-in-out infinite;
+    animation:
+        softPulse 2.5s ease-in-out infinite;
 }
 
 .gift-header h2 {
@@ -833,7 +916,9 @@ p {
 }
 
 
-/* GIFT GRID */
+/* =========================================================
+   GIFT GRID
+========================================================= */
 
 .gift-grid {
     width: min(700px, 92vw);
@@ -852,7 +937,9 @@ p {
 }
 
 
-/* INDIVIDUAL GIFT */
+/* =========================================================
+   INDIVIDUAL GIFT
+========================================================= */
 
 .gift {
     position: relative;
@@ -886,7 +973,9 @@ p {
 }
 
 
-/* GIFT BODY */
+/* =========================================================
+   GIFT BODY
+========================================================= */
 
 .gift-body {
     position: absolute;
@@ -913,7 +1002,9 @@ p {
 }
 
 
-/* GIFT LID */
+/* =========================================================
+   GIFT LID
+========================================================= */
 
 .gift-lid {
     position: absolute;
@@ -945,7 +1036,9 @@ p {
 }
 
 
-/* GIFT RIBBON */
+/* =========================================================
+   GIFT RIBBON
+========================================================= */
 
 .gift-ribbon {
     position: absolute;
@@ -973,7 +1066,9 @@ p {
 }
 
 
-/* OPEN GIFT */
+/* =========================================================
+   OPEN GIFT
+========================================================= */
 
 .gift.open {
     transform: translateY(-4px);
@@ -1051,7 +1146,9 @@ p {
 
     background: #ffdce7;
 
-    transform: translateX(-50%) rotate(45deg);
+    transform:
+        translateX(-50%)
+        rotate(45deg);
 
     z-index: -1;
 }
@@ -1085,7 +1182,9 @@ p {
 }
 
 
-/* FINAL GIFT */
+/* =========================================================
+   FINAL GIFT
+========================================================= */
 
 .final-gift {
     filter:
@@ -1112,7 +1211,9 @@ p {
 }
 
 
-/* OLD GENERAL MESSAGE AREA */
+/* =========================================================
+   OLD GENERAL MESSAGE AREA
+========================================================= */
 
 .gift-message {
     min-height: 10px;
@@ -1282,6 +1383,10 @@ p {
     letter-spacing: 8px;
 }
 
+#messageBtn {
+    margin-top: 30px;
+}
+
 @keyframes finalHeart {
     0%,
     100% {
@@ -1291,6 +1396,141 @@ p {
     50% {
         transform: scale(1.15);
     }
+}
+
+
+/* =========================================================
+   SCREEN 10 — MESSAGE
+========================================================= */
+
+.message-container {
+    width: min(650px, 94vw);
+
+    text-align: center;
+
+    padding: 35px 25px;
+
+    max-height: calc(100vh - 40px);
+
+    overflow-y: auto;
+}
+
+.message-icon {
+    font-size: 3rem;
+
+    margin-bottom: 18px;
+
+    animation:
+        softPulse 2.5s ease-in-out infinite;
+}
+
+.message-container h2 {
+    margin-bottom: 15px;
+}
+
+.message-container > p {
+    color: rgba(255, 255, 255, 0.78);
+
+    margin-bottom: 25px;
+}
+
+#messageForm {
+    width: 100%;
+
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 0.95rem;
+
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+
+    border: 1px solid rgba(255, 255, 255, 0.22);
+
+    border-radius: 14px;
+
+    outline: none;
+
+    padding: 13px 15px;
+
+    font-family: inherit;
+
+    font-size: 1rem;
+
+    color: #fff;
+
+    background: rgba(255, 255, 255, 0.08);
+
+    backdrop-filter: blur(10px);
+
+    transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: rgba(255, 150, 180, 0.8);
+
+    box-shadow:
+        0 0 20px rgba(230, 70, 120, 0.2);
+}
+
+.form-group textarea {
+    resize: vertical;
+
+    min-height: 140px;
+}
+
+.message-buttons {
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 12px;
+
+    flex-wrap: wrap;
+
+    margin-top: 20px;
+}
+
+.form-status {
+    min-height: 28px;
+
+    margin-top: 15px;
+
+    text-align: center;
+
+    color: #ffd0df;
+}
+
+
+/* =========================================================
+   SCREEN 11
+========================================================= */
+
+#screen11 .final-container {
+    max-width: 700px;
 }
 
 
@@ -1417,6 +1657,8 @@ p {
 @media (max-width: 700px) {
 
     .screen {
+        align-items: center;
+
         padding:
             25px 15px;
     }
@@ -1429,14 +1671,24 @@ p {
             25px 15px;
     }
 
+    /*
+       Photo width is controlled by JavaScript
+       according to the original image ratio.
+    */
     .photo-stage {
-        width: 94vw;
+        width: min(94vw, 760px);
 
         border-radius: 16px;
     }
 
     .photo-caption {
         font-size: 0.95rem;
+
+        margin-top: 15px;
+    }
+
+    #photoContinue {
+        margin-top: 15px;
     }
 
     .gift-grid {
@@ -1474,6 +1726,24 @@ p {
             25px 12px 50px;
     }
 
+    .message-container {
+        width: 95vw;
+
+        padding:
+            25px 15px 50px;
+    }
+
+    .message-buttons {
+        flex-direction: column;
+
+        width: 100%;
+    }
+
+    .message-buttons .main-btn,
+    .message-buttons .secondary-btn {
+        width: min(100%, 300px);
+    }
+
     .music-control {
         right: 14px;
         bottom: 14px;
@@ -1486,6 +1756,24 @@ p {
 ========================================================= */
 
 @media (max-width: 430px) {
+
+    h1 {
+        font-size: clamp(1.8rem, 9vw, 2.5rem);
+    }
+
+    h2 {
+        font-size: clamp(1.5rem, 7vw, 2.1rem);
+    }
+
+    p {
+        font-size: 0.95rem;
+    }
+
+    .photo-stage {
+        width: 94vw;
+
+        border-radius: 14px;
+    }
 
     .gift-grid {
         gap: 38px 10px;
@@ -1528,6 +1816,66 @@ p {
     .birthday-age {
         font-size: 0.9rem;
     }
+
+    .main-btn,
+    .secondary-btn {
+        padding:
+            12px 22px;
+
+        font-size: 0.92rem;
+    }
+
+    .message-container {
+        padding:
+            20px 10px 45px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        font-size: 16px;
+    }
+}
+
+
+/* =========================================================
+   VERY SHORT SCREENS
+   Helps phones in landscape mode.
+========================================================= */
+
+@media (max-height: 650px) {
+
+    .screen {
+        align-items: flex-start;
+
+        padding-top: 20px;
+        padding-bottom: 30px;
+    }
+
+    .photo-container {
+        padding-top: 10px;
+        padding-bottom: 30px;
+    }
+
+    .photo-caption {
+        margin-top: 12px;
+    }
+
+    #photoContinue {
+        margin-top: 12px;
+    }
+
+    .birthday-reveal {
+        padding-top: 20px;
+        padding-bottom: 30px;
+    }
+
+    .gift-container {
+        padding-top: 15px;
+    }
+
+    .gift-header {
+        margin-bottom: 20px;
+    }
 }
 
 
@@ -1541,9 +1889,11 @@ p {
     *::before,
     *::after {
         animation-duration: 0.01ms !important;
+
         animation-iteration-count: 1 !important;
 
         transition-duration: 0.01ms !important;
+
         scroll-behavior: auto !important;
     }
 }

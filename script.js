@@ -2,7 +2,6 @@
    DORCAS — BIRTHDAY WEBSITE
 ========================================================= */
 
-
 /* =========================================================
    CONFIGURATION
 ========================================================= */
@@ -17,22 +16,22 @@ const photoFiles = [
     "images/p05.png"
 ];
 
+const FORMSPREE_ENDPOINT =
+    "https://formspree.io/f/xzezpdza";
+
 
 /* =========================================================
    GLOBAL VARIABLES
 ========================================================= */
 
 let currentScreen = 1;
-
 let musicStarted = false;
-
 let currentPhoto = 0;
-
 let photoTimer = null;
-
 let montageRunning = false;
-
 let selectedGift = false;
+let birthdayRevealTimer = null;
+let letterTypingTimer = null;
 
 
 /* =========================================================
@@ -94,6 +93,32 @@ const musicControl =
 
 
 /* =========================================================
+   MESSAGE FORM
+========================================================= */
+
+const messageForm =
+    document.getElementById("messageForm");
+
+const nameInput =
+    document.getElementById("nameInput");
+
+const messageInput =
+    document.getElementById("messageInput");
+
+const sendMessageBtn =
+    document.getElementById("sendMessageBtn");
+
+const formStatus =
+    document.getElementById("formStatus");
+
+const messageBtn =
+    document.getElementById("messageBtn");
+
+const finishBtn =
+    document.getElementById("finishBtn");
+
+
+/* =========================================================
    SCREEN MANAGEMENT
 ========================================================= */
 
@@ -101,6 +126,7 @@ function showScreen(number) {
 
     screens.forEach(screen => {
         screen.classList.remove("active");
+        screen.setAttribute("aria-hidden", "true");
     });
 
     const target =
@@ -109,11 +135,11 @@ function showScreen(number) {
     if (!target) return;
 
     target.classList.add("active");
+    target.setAttribute("aria-hidden", "false");
 
     currentScreen = number;
 
-
-    /* Screen-specific actions */
+    target.scrollTop = 0;
 
     if (number === 3) {
         startBirthdayReveal();
@@ -134,39 +160,77 @@ function showScreen(number) {
 
 
 /* =========================================================
+   RETOUR BUTTONS
+========================================================= */
+
+const backButtons =
+    document.querySelectorAll("[data-back]");
+
+backButtons.forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        const previousScreen =
+            Number(button.dataset.back);
+
+        if (!previousScreen) return;
+
+        if (currentScreen === 4) {
+
+            if (photoTimer) {
+                clearInterval(photoTimer);
+                photoTimer = null;
+            }
+
+            montageRunning = false;
+        }
+
+        showScreen(previousScreen);
+    });
+});
+
+
+/* =========================================================
    MUSIC
 ========================================================= */
 
 function startMusic() {
 
+    if (!birthdayMusic) return;
+
     if (musicStarted) return;
 
     birthdayMusic.volume = 0.45;
 
-    birthdayMusic
-        .play()
+    birthdayMusic.play()
         .then(() => {
+
             musicStarted = true;
-            musicControl.textContent = "🎵";
+
+            if (musicControl) {
+                musicControl.textContent = "🎵";
+            }
+
         })
-        .catch(() => {
-            /*
-                Browser may block autoplay.
-                Music will start after another user click.
-            */
-        });
+        .catch(() => {});
 }
 
 
 function toggleMusic() {
 
+    if (!birthdayMusic) return;
+
     if (birthdayMusic.paused) {
 
-        birthdayMusic
-            .play()
+        birthdayMusic.play()
             .then(() => {
+
                 musicStarted = true;
-                musicControl.textContent = "🎵";
+
+                if (musicControl) {
+                    musicControl.textContent = "🎵";
+                }
+
             })
             .catch(() => {});
 
@@ -174,20 +238,21 @@ function toggleMusic() {
 
         birthdayMusic.pause();
 
-        musicControl.textContent = "🔇";
+        if (musicControl) {
+            musicControl.textContent = "🔇";
+        }
     }
 }
 
 
-musicControl.addEventListener(
-    "click",
-    toggleMusic
-);
+if (musicControl) {
 
+    musicControl.addEventListener(
+        "click",
+        toggleMusic
+    );
+}
 
-/* =========================================================
-   START MUSIC ON FIRST INTERACTION
-========================================================= */
 
 document.addEventListener(
     "click",
@@ -197,22 +262,26 @@ document.addEventListener(
 
 
 /* =========================================================
-   SCREEN 1
+   SCREEN 1 — DISCOVER
 ========================================================= */
 
-discoverBtn.addEventListener(
-    "click",
-    () => {
+if (discoverBtn) {
+
+    discoverBtn.addEventListener("click", () => {
 
         startMusic();
 
         showScreen(2);
 
         setTimeout(() => {
-            pinInput.focus();
+
+            if (pinInput) {
+                pinInput.focus();
+            }
+
         }, 500);
-    }
-);
+    });
+}
 
 
 /* =========================================================
@@ -221,12 +290,16 @@ discoverBtn.addEventListener(
 
 function checkPin() {
 
+    if (!pinInput) return;
+
     const enteredPin =
         pinInput.value.trim();
 
     if (enteredPin === SECRET_PIN) {
 
-        wrongCode.classList.remove("show");
+        if (wrongCode) {
+            wrongCode.classList.remove("show");
+        }
 
         pinInput.value = "";
 
@@ -234,7 +307,9 @@ function checkPin() {
 
     } else {
 
-        wrongCode.classList.add("show");
+        if (wrongCode) {
+            wrongCode.classList.add("show");
+        }
 
         pinInput.value = "";
 
@@ -242,24 +317,12 @@ function checkPin() {
 
         pinInput.animate(
             [
-                {
-                    transform: "translateX(0)"
-                },
-                {
-                    transform: "translateX(-8px)"
-                },
-                {
-                    transform: "translateX(8px)"
-                },
-                {
-                    transform: "translateX(-5px)"
-                },
-                {
-                    transform: "translateX(5px)"
-                },
-                {
-                    transform: "translateX(0)"
-                }
+                { transform: "translateX(0)" },
+                { transform: "translateX(-8px)" },
+                { transform: "translateX(8px)" },
+                { transform: "translateX(-5px)" },
+                { transform: "translateX(5px)" },
+                { transform: "translateX(0)" }
             ],
             {
                 duration: 400
@@ -269,21 +332,27 @@ function checkPin() {
 }
 
 
-enterCodeBtn.addEventListener(
-    "click",
-    checkPin
-);
+if (enterCodeBtn) {
+
+    enterCodeBtn.addEventListener(
+        "click",
+        checkPin
+    );
+}
 
 
-pinInput.addEventListener(
-    "keydown",
-    event => {
+if (pinInput) {
 
-        if (event.key === "Enter") {
-            checkPin();
+    pinInput.addEventListener(
+        "keydown",
+        event => {
+
+            if (event.key === "Enter") {
+                checkPin();
+            }
         }
-    }
-);
+    );
+}
 
 
 /* =========================================================
@@ -297,71 +366,55 @@ function startBirthdayReveal() {
 
     if (!birthdayReveal) return;
 
+    if (birthdayRevealTimer) {
+        clearTimeout(birthdayRevealTimer);
+    }
 
     birthdayReveal.classList.remove(
         "reveal-start"
     );
 
-
-    /*
-        Force browser to restart
-        the animation.
-    */
     void birthdayReveal.offsetWidth;
-
 
     birthdayReveal.classList.add(
         "reveal-start"
     );
 
+    birthdayRevealTimer =
+        setTimeout(() => {
 
-    /*
-        Automatically continue
-        to the photo montage.
-    */
-    setTimeout(() => {
+            if (currentScreen === 3) {
+                showScreen(4);
+            }
 
-        if (currentScreen === 3) {
-            showScreen(4);
-        }
-
-    }, 6500);
+        }, 6500);
 }
 
 
-birthdayContinue.addEventListener(
-    "click",
-    () => {
+if (birthdayContinue) {
 
-        if (currentScreen === 3) {
-            showScreen(4);
+    birthdayContinue.addEventListener(
+        "click",
+        () => {
+
+            if (birthdayRevealTimer) {
+                clearTimeout(birthdayRevealTimer);
+            }
+
+            if (currentScreen === 3) {
+                showScreen(4);
+            }
         }
-    }
-);
+    );
+}
 
 
 /* =========================================================
    PHOTO MONTAGE
 ========================================================= */
 
-/*
-    Number of pieces.
-
-    7 columns × 6 rows = 42 pieces.
-
-    This gives enough pieces to create
-    the "photo assembling itself" effect
-    without making the pieces too tiny.
-*/
-
 const PHOTO_COLUMNS = 7;
-
 const PHOTO_ROWS = 6;
-
-
-/* ---------------------------------------------------------
-   PHOTO CAPTIONS
---------------------------------------------------------- */
 
 const photoCaptions = [
     "Quelques souvenirs... ❤️",
@@ -372,18 +425,97 @@ const photoCaptions = [
 ];
 
 
-/* ---------------------------------------------------------
+/* =========================================================
+   RESPONSIVE PHOTO SIZE
+========================================================= */
+
+function resizePhotoStage(width, height) {
+
+    if (!photoStage) return;
+
+    if (!width || !height) return;
+
+    const ratio = width / height;
+
+    const viewportWidth =
+        window.innerWidth;
+
+    const viewportHeight =
+        window.innerHeight;
+
+    const maxWidth =
+        Math.min(
+            760,
+            viewportWidth * 0.90
+        );
+
+    const maxHeight =
+        viewportHeight * 0.58;
+
+    let finalWidth =
+        Math.min(
+            maxWidth,
+            maxHeight * ratio
+        );
+
+    finalWidth =
+        Math.max(
+            260,
+            finalWidth
+        );
+
+    finalWidth =
+        Math.min(
+            finalWidth,
+            viewportWidth * 0.94
+        );
+
+    photoStage.style.width =
+        `${finalWidth}px`;
+
+    photoStage.style.aspectRatio =
+        `${width} / ${height}`;
+}
+
+
+/* =========================================================
+   LOAD PHOTO
+========================================================= */
+
+function loadPhoto(index) {
+
+    return new Promise((resolve, reject) => {
+
+        const image = new Image();
+
+        image.onload = () => {
+
+            resizePhotoStage(
+                image.naturalWidth,
+                image.naturalHeight
+            );
+
+            resolve(image);
+        };
+
+        image.onerror = () => {
+            reject();
+        };
+
+        image.src =
+            photoFiles[index];
+    });
+}
+
+
+/* =========================================================
    CREATE PHOTO PIECES
---------------------------------------------------------- */
+========================================================= */
 
 function createPhotoPieces(imageSrc) {
 
     if (!photoStage) return;
 
-
-    /*
-        Remove all previous pieces.
-    */
     const oldPieces =
         photoStage.querySelectorAll(
             ".photo-piece"
@@ -394,20 +526,12 @@ function createPhotoPieces(imageSrc) {
     });
 
 
-    /*
-        Calculate the dimensions.
-    */
-
     const pieceWidth =
         100 / PHOTO_COLUMNS;
 
     const pieceHeight =
         100 / PHOTO_ROWS;
 
-
-    /*
-        Create every piece.
-    */
 
     for (
         let row = 0;
@@ -424,14 +548,9 @@ function createPhotoPieces(imageSrc) {
             const piece =
                 document.createElement("div");
 
-
             piece.className =
                 "photo-piece";
 
-
-            /*
-                Position of this tile.
-            */
 
             piece.style.left =
                 `${column * pieceWidth}%`;
@@ -445,13 +564,6 @@ function createPhotoPieces(imageSrc) {
             piece.style.height =
                 `${pieceHeight}%`;
 
-
-            /*
-                Random starting position.
-
-                The pieces begin scattered
-                around the photo.
-            */
 
             const scatterX =
                 (Math.random() - 0.5) * 180;
@@ -479,80 +591,36 @@ function createPhotoPieces(imageSrc) {
             );
 
 
-            /*
-                Create the image inside
-                the individual piece.
-
-                This method is more reliable
-                than background-position because
-                every piece gets an exact section
-                of the original image.
-            */
-
             const image =
                 document.createElement("img");
 
-
-            image.src = imageSrc;
+            image.src =
+                imageSrc;
 
             image.alt = "";
 
             image.draggable = false;
 
 
-            /*
-                The full image must cover the
-                complete grid.
-
-                Example:
-
-                7 columns means the image
-                inside each piece is 7 times
-                wider than the piece.
-
-                6 rows means it is 6 times
-                taller than the piece.
-            */
-
-            const fullWidth =
-                PHOTO_COLUMNS * 100;
-
-            const fullHeight =
-                PHOTO_ROWS * 100;
-
-
             piece.style.setProperty(
                 "--full-width",
-                `${fullWidth}%`
+                `${PHOTO_COLUMNS * 100}%`
             );
 
             piece.style.setProperty(
                 "--full-height",
-                `${fullHeight}%`
+                `${PHOTO_ROWS * 100}%`
             );
-
-
-            /*
-                Move the large image so that
-                the correct section appears
-                inside this particular tile.
-            */
-
-            const imageLeft =
-                -(column * 100);
-
-            const imageTop =
-                -(row * 100);
 
 
             piece.style.setProperty(
                 "--image-left",
-                `${imageLeft}%`
+                `${-(column * 100)}%`
             );
 
             piece.style.setProperty(
                 "--image-top",
-                `${imageTop}%`
+                `${-(row * 100)}%`
             );
 
 
@@ -561,18 +629,17 @@ function createPhotoPieces(imageSrc) {
             photoStage.appendChild(piece);
 
 
-            /*
-                Small random delay so pieces
-                arrive progressively.
-            */
-
             const delay =
                 (row * PHOTO_COLUMNS + column) * 8;
+
 
             setTimeout(() => {
 
                 if (piece.isConnected) {
-                    piece.classList.add("active");
+
+                    piece.classList.add(
+                        "active"
+                    );
                 }
 
             }, delay);
@@ -581,17 +648,18 @@ function createPhotoPieces(imageSrc) {
 }
 
 
-/* ---------------------------------------------------------
+/* =========================================================
    BREAK PHOTO PIECES
---------------------------------------------------------- */
+========================================================= */
 
 function breakPhotoPieces() {
+
+    if (!photoStage) return;
 
     const pieces =
         photoStage.querySelectorAll(
             ".photo-piece"
         );
-
 
     pieces.forEach((piece, index) => {
 
@@ -610,11 +678,11 @@ function breakPhotoPieces() {
 }
 
 
-/* ---------------------------------------------------------
+/* =========================================================
    DISPLAY PHOTO
---------------------------------------------------------- */
+========================================================= */
 
-function displayPhoto(index) {
+async function displayPhoto(index) {
 
     if (!photoStage) return;
 
@@ -623,14 +691,28 @@ function displayPhoto(index) {
     if (index >= photoFiles.length) return;
 
 
-    const imageSrc =
-        photoFiles[index];
+    try {
+
+        await loadPhoto(index);
+
+    } catch (error) {
+
+        console.error(
+            "Impossible de charger la photo:",
+            photoFiles[index]
+        );
+
+        return;
+    }
 
 
-    /*
-        If there is already a photo,
-        break it apart first.
-    */
+    if (
+        currentScreen !== 4 ||
+        !montageRunning
+    ) {
+        return;
+    }
+
 
     const existingPieces =
         photoStage.querySelectorAll(
@@ -642,13 +724,6 @@ function displayPhoto(index) {
 
         breakPhotoPieces();
 
-
-        /*
-            Give the pieces enough time
-            to disappear before building
-            the next image.
-        */
-
         setTimeout(() => {
 
             if (
@@ -657,7 +732,7 @@ function displayPhoto(index) {
             ) {
 
                 createPhotoPieces(
-                    imageSrc
+                    photoFiles[index]
                 );
             }
 
@@ -665,13 +740,11 @@ function displayPhoto(index) {
 
     } else {
 
-        createPhotoPieces(imageSrc);
+        createPhotoPieces(
+            photoFiles[index]
+        );
     }
 
-
-    /*
-        Update caption.
-    */
 
     if (photoCaption) {
 
@@ -679,47 +752,55 @@ function displayPhoto(index) {
 
         setTimeout(() => {
 
-            photoCaption.textContent =
-                photoCaptions[index];
+            if (photoCaption) {
 
-            photoCaption.style.opacity = "1";
+                photoCaption.textContent =
+                    photoCaptions[index];
+
+                photoCaption.style.opacity =
+                    "1";
+            }
 
         }, 500);
     }
 }
 
 
-/* ---------------------------------------------------------
+/* =========================================================
    START PHOTO MONTAGE
---------------------------------------------------------- */
+========================================================= */
 
 function startPhotoMontage() {
 
-    /*
-        Prevent the montage from being
-        started several times.
-    */
+    if (!photoStage) return;
 
-    if (montageRunning) return;
+    if (photoTimer) {
 
+        clearInterval(
+            photoTimer
+        );
+
+        photoTimer = null;
+    }
 
     montageRunning = true;
 
     currentPhoto = 0;
 
 
-    if (photoTimer) {
-        clearInterval(photoTimer);
-        photoTimer = null;
+    if (photoContinue) {
+
+        photoContinue.classList.remove(
+            "visible"
+        );
+
+        photoContinue.style.display =
+            "none";
     }
 
 
     displayPhoto(currentPhoto);
 
-
-    /*
-        Change picture every 4.5 seconds.
-    */
 
     photoTimer =
         setInterval(() => {
@@ -730,18 +811,16 @@ function startPhotoMontage() {
 }
 
 
-/* ---------------------------------------------------------
+/* =========================================================
    NEXT PHOTO
---------------------------------------------------------- */
+========================================================= */
 
 function nextPhoto() {
 
+    if (!montageRunning) return;
+
     currentPhoto++;
 
-
-    /*
-        All 5 photos have been shown.
-    */
 
     if (
         currentPhoto >=
@@ -749,11 +828,35 @@ function nextPhoto() {
     ) {
 
         if (photoTimer) {
-            clearInterval(photoTimer);
+
+            clearInterval(
+                photoTimer
+            );
+
             photoTimer = null;
         }
 
         montageRunning = false;
+
+
+        /*
+            The montage is finished.
+            Now show the Continue button.
+        */
+
+        if (photoContinue) {
+
+            photoContinue.style.display =
+                "inline-flex";
+
+            setTimeout(() => {
+
+                photoContinue.classList.add(
+                    "visible"
+                );
+
+            }, 50);
+        }
 
         return;
     }
@@ -763,22 +866,64 @@ function nextPhoto() {
 }
 
 
-/* ---------------------------------------------------------
-   PHOTO CONTINUE BUTTON
---------------------------------------------------------- */
+/* =========================================================
+   PHOTO CONTINUE
+========================================================= */
 
-photoContinue.addEventListener(
-    "click",
+if (photoContinue) {
+
+    photoContinue.addEventListener(
+        "click",
+        () => {
+
+            if (photoTimer) {
+
+                clearInterval(
+                    photoTimer
+                );
+
+                photoTimer = null;
+            }
+
+            montageRunning = false;
+
+            showScreen(5);
+        }
+    );
+}
+
+
+/* =========================================================
+   PHOTO RESIZE
+========================================================= */
+
+window.addEventListener(
+    "resize",
     () => {
 
-        if (photoTimer) {
-            clearInterval(photoTimer);
-            photoTimer = null;
+        if (
+            currentScreen !== 4 ||
+            !photoStage
+        ) {
+            return;
         }
 
-        montageRunning = false;
+        const image =
+            photoStage.querySelector(
+                ".photo-piece img"
+            );
 
-        showScreen(5);
+        if (
+            image &&
+            image.naturalWidth &&
+            image.naturalHeight
+        ) {
+
+            resizePhotoStage(
+                image.naturalWidth,
+                image.naturalHeight
+            );
+        }
     }
 );
 
@@ -787,34 +932,37 @@ photoContinue.addEventListener(
    SCREEN 5 — THOUGHTS
 ========================================================= */
 
-herContinue.addEventListener(
-    "click",
-    () => {
+if (herContinue) {
 
-        showScreen(6);
-    }
-);
+    herContinue.addEventListener(
+        "click",
+        () => {
+
+            showScreen(6);
+        }
+    );
+}
 
 
 /* =========================================================
    SCREEN 6 — YES / NO
 ========================================================= */
 
-yesBtn.addEventListener(
-    "click",
-    () => {
+if (yesBtn) {
 
-        showScreen(7);
-    }
-);
+    yesBtn.addEventListener(
+        "click",
+        () => {
 
+            showScreen(7);
+        }
+    );
+}
 
-/*
-    The NO button moves away when
-    the user tries to click it.
-*/
 
 function moveNoButton() {
+
+    if (!noBtn) return;
 
     const container =
         document.querySelector(
@@ -827,7 +975,6 @@ function moveNoButton() {
     const containerRect =
         container.getBoundingClientRect();
 
-
     const buttonRect =
         noBtn.getBoundingClientRect();
 
@@ -838,7 +985,6 @@ function moveNoButton() {
             containerRect.width -
             buttonRect.width
         );
-
 
     const maxY =
         Math.max(
@@ -852,7 +998,6 @@ function moveNoButton() {
         Math.random() * maxX -
         maxX / 2;
 
-
     const randomY =
         Math.random() * maxY -
         maxY / 2;
@@ -863,21 +1008,23 @@ function moveNoButton() {
 }
 
 
-noBtn.addEventListener(
-    "mouseenter",
-    moveNoButton
-);
+if (noBtn) {
 
+    noBtn.addEventListener(
+        "mouseenter",
+        moveNoButton
+    );
 
-noBtn.addEventListener(
-    "touchstart",
-    event => {
+    noBtn.addEventListener(
+        "touchstart",
+        event => {
 
-        event.preventDefault();
+            event.preventDefault();
 
-        moveNoButton();
-    }
-);
+            moveNoButton();
+        }
+    );
+}
 
 
 /* =========================================================
@@ -924,10 +1071,6 @@ const giftContents = {
 };
 
 
-/* ---------------------------------------------------------
-   RESET GIFTS
---------------------------------------------------------- */
-
 function resetGiftGame() {
 
     selectedGift = false;
@@ -935,7 +1078,9 @@ function resetGiftGame() {
 
     gifts.forEach(gift => {
 
-        gift.classList.remove("open");
+        gift.classList.remove(
+            "open"
+        );
 
         gift.disabled = false;
 
@@ -962,20 +1107,15 @@ function resetGiftGame() {
 }
 
 
-/* ---------------------------------------------------------
-   OPEN GIFT
---------------------------------------------------------- */
+/* =========================================================
+   OPEN GIFTS
+========================================================= */
 
 gifts.forEach(gift => {
 
     gift.addEventListener(
         "click",
         () => {
-
-            /*
-                Don't allow another gift
-                while one is being processed.
-            */
 
             if (selectedGift) return;
 
@@ -993,11 +1133,6 @@ gifts.forEach(gift => {
             if (!content) return;
 
 
-            /*
-                Don't reopen an already
-                opened gift.
-            */
-
             if (
                 gift.classList.contains(
                     "open"
@@ -1007,17 +1142,10 @@ gifts.forEach(gift => {
             }
 
 
-            /*
-                Open the gift.
-            */
+            gift.classList.add(
+                "open"
+            );
 
-            gift.classList.add("open");
-
-
-            /*
-                Create the message directly
-                on this gift.
-            */
 
             let label =
                 gift.querySelector(
@@ -1035,25 +1163,17 @@ gifts.forEach(gift => {
                 label.className =
                     "gift-label";
 
-                gift.appendChild(label);
+                gift.appendChild(
+                    label
+                );
             }
 
 
             label.innerHTML = `
-                <strong>
-                    ${content.message}
-                </strong>
-
-                <small>
-                    ${content.detail}
-                </small>
+                <strong>${content.message}</strong>
+                <small>${content.detail}</small>
             `;
 
-
-            /*
-                Animate the message
-                after the lid opens.
-            */
 
             setTimeout(() => {
 
@@ -1064,29 +1184,27 @@ gifts.forEach(gift => {
             }, 300);
 
 
-            /* ---------------------------------
-               FINAL GIFT
-            --------------------------------- */
+            /* FINAL GIFT */
 
-            if (content === giftContents[5]) {
+            if (
+                content ===
+                giftContents[5]
+            ) {
 
                 selectedGift = true;
 
 
-                gifts.forEach(otherGift => {
+                gifts.forEach(
+                    otherGift => {
 
-                    otherGift.disabled = true;
-
-                });
+                        otherGift.disabled =
+                            true;
+                    }
+                );
 
 
                 createCelebration();
 
-
-                /*
-                    Give her time to read
-                    the final gift message.
-                */
 
                 setTimeout(() => {
 
@@ -1099,9 +1217,7 @@ gifts.forEach(gift => {
             }
 
 
-            /* ---------------------------------
-               NORMAL GIFT
-            --------------------------------- */
+            /* NORMAL GIFT */
 
             setTimeout(() => {
 
@@ -1134,10 +1250,6 @@ gifts.forEach(gift => {
 
 function createCelebration() {
 
-    /*
-        Confetti
-    */
-
     for (
         let i = 0;
         i < 55;
@@ -1152,23 +1264,18 @@ function createCelebration() {
         piece.className =
             "confetti";
 
-
         piece.style.left =
             `${Math.random() * 100}%`;
-
 
         piece.style.animationDelay =
             `${Math.random() * 1.5}s`;
 
-
         piece.style.transform =
             `rotate(${Math.random() * 360}deg)`;
-
 
         document.body.appendChild(
             piece
         );
-
 
         setTimeout(() => {
 
@@ -1177,10 +1284,6 @@ function createCelebration() {
         }, 4500);
     }
 
-
-    /*
-        Floating hearts
-    */
 
     for (
         let i = 0;
@@ -1201,19 +1304,15 @@ function createCelebration() {
                 ? "❤️"
                 : "♡";
 
-
         heart.style.left =
             `${Math.random() * 100}%`;
-
 
         heart.style.animationDelay =
             `${Math.random() * 2}s`;
 
-
         document.body.appendChild(
             heart
         );
-
 
         setTimeout(() => {
 
@@ -1247,47 +1346,38 @@ Profite pleinement de cette journée
 et de cette nouvelle année. ❤️`;
 
 
-/* ---------------------------------------------------------
-   START LETTER
---------------------------------------------------------- */
-
 function startLetter() {
 
     if (!letterText) return;
 
 
-    /*
-        Clear previous letter.
-    */
+    if (letterTypingTimer) {
+
+        clearTimeout(
+            letterTypingTimer
+        );
+    }
+
 
     letterText.textContent = "";
 
 
-    /*
-        Hide Continue button
-        until typing is finished.
-    */
+    if (letterContinue) {
 
-    letterContinue.classList.remove(
-        "visible"
-    );
+        letterContinue.classList.remove(
+            "visible"
+        );
+    }
 
 
     let index = 0;
-
-
-    /*
-        Typing speed.
-    */
 
     const typingSpeed = 38;
 
 
     function typeNextCharacter() {
 
-        if (
-            currentScreen !== 8
-        ) {
+        if (currentScreen !== 8) {
             return;
         }
 
@@ -1303,42 +1393,35 @@ function startLetter() {
             index++;
 
 
-            /*
-                Keep the latest text visible.
-            */
+            if (letterText.parentElement) {
 
-            letterText.scrollIntoView({
-                behavior: "smooth",
-                block: "end"
-            });
+                letterText.parentElement.scrollTop =
+                    letterText.parentElement.scrollHeight;
+            }
 
 
-            setTimeout(
-                typeNextCharacter,
-                typingSpeed
-            );
+            letterTypingTimer =
+                setTimeout(
+                    typeNextCharacter,
+                    typingSpeed
+                );
 
         } else {
 
-            /*
-                The entire letter has
-                finished typing.
+            letterTypingTimer =
+                setTimeout(() => {
 
-                Now show Continue.
-            */
+                    if (
+                        currentScreen === 8 &&
+                        letterContinue
+                    ) {
 
-            setTimeout(() => {
+                        letterContinue.classList.add(
+                            "visible"
+                        );
+                    }
 
-                if (
-                    currentScreen === 8
-                ) {
-
-                    letterContinue.classList.add(
-                        "visible"
-                    );
-                }
-
-            }, 400);
+                }, 400);
         }
     }
 
@@ -1347,17 +1430,208 @@ function startLetter() {
 }
 
 
-/* ---------------------------------------------------------
-   LETTER CONTINUE
---------------------------------------------------------- */
+if (letterContinue) {
 
-letterContinue.addEventListener(
-    "click",
-    () => {
+    letterContinue.addEventListener(
+        "click",
+        () => {
 
-        showScreen(9);
-    }
-);
+            showScreen(9);
+        }
+    );
+}
+
+
+/* =========================================================
+   SCREEN 9 — MESSAGE BUTTON
+========================================================= */
+
+if (messageBtn) {
+
+    messageBtn.addEventListener(
+        "click",
+        () => {
+
+            showScreen(10);
+        }
+    );
+}
+
+
+/* =========================================================
+   SCREEN 10 — MESSAGE FORM
+========================================================= */
+
+if (messageForm) {
+
+    messageForm.action =
+        FORMSPREE_ENDPOINT;
+
+    messageForm.method =
+        "POST";
+
+
+    messageForm.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+
+            if (!messageInput) return;
+
+
+            const message =
+                messageInput.value.trim();
+
+
+            if (!message) {
+
+                if (formStatus) {
+
+                    formStatus.textContent =
+                        "Écris un petit message avant de l'envoyer. ❤️";
+
+                    formStatus.className =
+                        "error";
+                }
+
+                messageInput.focus();
+
+                return;
+            }
+
+
+            if (sendMessageBtn) {
+
+                sendMessageBtn.disabled =
+                    true;
+
+                sendMessageBtn.textContent =
+                    "Envoi...";
+            }
+
+
+            if (formStatus) {
+
+                formStatus.textContent =
+                    "Ton message est en train d'être envoyé...";
+
+                formStatus.className =
+                    "sending";
+            }
+
+
+            try {
+
+                const formData =
+                    new FormData(
+                        messageForm
+                    );
+
+
+                const response =
+                    await fetch(
+                        FORMSPREE_ENDPOINT,
+                        {
+                            method: "POST",
+                            body: formData,
+                            headers: {
+                                Accept:
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                if (response.ok) {
+
+                    if (formStatus) {
+
+                        formStatus.textContent =
+                            "Message envoyé avec succès ❤️";
+
+                        formStatus.className =
+                            "success";
+                    }
+
+
+                    if (messageInput) {
+                        messageInput.value = "";
+                    }
+
+
+                    if (nameInput) {
+                        nameInput.value = "";
+                    }
+
+
+                    setTimeout(() => {
+
+                        showScreen(11);
+
+                    }, 1200);
+
+
+                } else {
+
+                    if (formStatus) {
+
+                        formStatus.textContent =
+                            "Impossible d'envoyer le message. Réessaie.";
+
+                        formStatus.className =
+                            "error";
+                    }
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Erreur Formspree:",
+                    error
+                );
+
+
+                if (formStatus) {
+
+                    formStatus.textContent =
+                        "Une erreur est survenue. Vérifie ta connexion puis réessaie.";
+
+                    formStatus.className =
+                        "error";
+                }
+
+            } finally {
+
+                if (sendMessageBtn) {
+
+                    sendMessageBtn.disabled =
+                        false;
+
+                    sendMessageBtn.textContent =
+                        "Envoyer ❤️";
+                }
+            }
+        }
+    );
+}
+
+
+/* =========================================================
+   SCREEN 11 — FINISH
+========================================================= */
+
+if (finishBtn) {
+
+    finishBtn.addEventListener(
+        "click",
+        () => {
+
+            showScreen(1);
+        }
+    );
+}
 
 
 /* =========================================================
@@ -1434,11 +1708,17 @@ function initializeWebsite() {
 }
 
 
-/* =========================================================
-   START WEBSITE
-========================================================= */
+if (
+    document.readyState ===
+    "loading"
+) {
 
-document.addEventListener(
-    "DOMContentLoaded",
-    initializeWebsite
-);
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeWebsite
+    );
+
+} else {
+
+    initializeWebsite();
+}
