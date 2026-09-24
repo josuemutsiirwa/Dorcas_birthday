@@ -6,7 +6,7 @@
    CONFIGURATION
 ========================================================= */
 
-const SECRET_PIN = "2749";
+const SECRET_PIN = "1509";
 
 const photoFiles = [
     "images/p01.png",
